@@ -1,36 +1,46 @@
-import React, { memo } from "react";
+import React, { memo, useState } from "react";
+import "./ItemQuantityDisplay.css";
 import PropTypes from "prop-types";
+import { checkProduct } from "../../../../api/checkProduct";
 
 const ItemQuantityDisplay = (props) => {
-  const {
-    currentQuantity,
-    min,
-    max,
-    isBlocked,
-    addOneProduct,
-    removeOneProduct,
-  } = props;
+  const { pid, min, max, isBlocked, updateQuantity } = props;
 
-  const isMinusDisabeld = isBlocked || currentQuantity == min;
-  const isPlusDisabled = isBlocked || currentQuantity == max;
+  const [quantity, setQuantity] = useState(min);
+
+  const isMinusDisabeld = isBlocked || quantity == min;
+  const isPlusDisabled = isBlocked || quantity == max;
+
+  const addNumber = (number) => {
+    const newQuantity = quantity + number;
+    setQuantity(newQuantity);
+
+    checkProduct(pid, newQuantity).then((res) => {
+      if (res.isError) {
+        setQuantity(min);
+      } else {
+        updateQuantity(pid, newQuantity);
+      }
+    });
+  };
 
   return (
     <div className="quantity-display">
-      <span className="quantity-display__text">
-        Obecnie masz <strong> {currentQuantity} </strong> sztuk produktu
+      <span className="text">
+        Obecnie masz <strong> {quantity} </strong> sztuk produktu
       </span>
-      <div className="quantity-display__buttons">
+      <div className="buttons-block">
         <button
-          className="quantity-display__buttons--minus"
+          className="button-minus"
           disabled={isMinusDisabeld}
-          onClick={removeOneProduct}
+          onClick={() => addNumber(-1)}
         >
           -
         </button>
         <button
-          className="quantity-display__buttons--plus"
+          className="button-plus"
           disabled={isPlusDisabled}
-          onClick={addOneProduct}
+          onClick={() => addNumber(1)}
         >
           +
         </button>
@@ -40,7 +50,6 @@ const ItemQuantityDisplay = (props) => {
 };
 
 ItemQuantityDisplay.propTypes = {
-  currentQuantity: PropTypes.number,
   min: PropTypes.number,
   max: PropTypes.number,
   isBlocked: PropTypes.bool,

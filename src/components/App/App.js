@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import { getProducts } from "../../api/getProducts";
-import { showStringPrice } from "../../common/functions";
+import { checkProduct } from "../../api/checkProduct";
+import { showStringPrice } from "../../common/functions/showStringPrice";
 import ItemDisplay from "./components/ItemDisplay/ItemDisplay";
 import ItemQuantityDisplay from "./components/ItemQuantityDisplay/ItemQuantityDisplay";
 
 const App = () => {
   const [cartItems, setCartItems] = useState();
+  const [sumPriceDisplay, setSumPriceDisplay] = useState();
 
   useEffect(() => {
     getProducts().then((res) => {
@@ -14,36 +16,30 @@ const App = () => {
     });
   }, []);
 
-  const addOneProduct = (pid) => {
+  useEffect(() => {
+    if (cartItems) {
+      let newSumPrice = 0;
+      cartItems.forEach((item) => {
+        newSumPrice += item.quantity * item.price;
+      });
+      setSumPriceDisplay(showStringPrice(newSumPrice.toFixed(2)));
+    }
+  }, [cartItems]);
+
+  const updateQuantity = (pid, newQuantity) => {
     const indexOfUpdatedItem = cartItems.findIndex((item) => item.pid == pid);
     const newArray = [...cartItems];
 
     newArray[indexOfUpdatedItem] = {
       ...newArray[indexOfUpdatedItem],
-      quantity: newArray[indexOfUpdatedItem].quantity + 1,
+      quantity: newQuantity,
     };
-
-    setCartItems(newArray);
-  };
-
-  const removeOneProduct = (pid) => {
-    const indexOfUpdatedItem = cartItems.findIndex((item) => item.pid == pid);
-    const newArray = [...cartItems];
-
-    newArray[indexOfUpdatedItem] = {
-      ...newArray[indexOfUpdatedItem],
-      quantity: newArray[indexOfUpdatedItem].quantity - 1,
-    };
-
     setCartItems(newArray);
   };
 
   return (
     <div className="container">
       <h3>Lista produktów</h3>
-
-      <button onClick={() => console.log(cartItems)}>asda</button>
-
       <ul>
         {cartItems &&
           cartItems.map((item) => (
@@ -53,15 +49,15 @@ const App = () => {
                 price={showStringPrice(item.price)}
               />
               <ItemQuantityDisplay
-                currentQuantity={item.quantity}
+                pid={item.pid}
                 min={item.min}
                 max={item.max}
-                addOneProduct={() => addOneProduct(item.pid)}
-                removeOneProduct={() => removeOneProduct(item.pid)}
+                updateQuantity={updateQuantity}
               />
             </li>
           ))}
       </ul>
+      {sumPriceDisplay && <h2 className="sum">Suma: {sumPriceDisplay}</h2>}
     </div>
   );
 };

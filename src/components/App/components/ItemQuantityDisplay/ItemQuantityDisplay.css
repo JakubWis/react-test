@@ -1,0 +1,26 @@
+.quantity-display {
+  display: flex;
+}
+
+.text {
+  margin-right: 20px;
+}
+
+.button-minus {
+  margin-right: 10px;
+  cursor: pointer;
+  font-size: 18px;
+  border: none;
+  font-weight: 700;
+  background-color: #ef4343;
+  border-radius: 5px;
+}
+
+.button-plus {
+  cursor: pointer;
+  font-size: 18px;
+  border: none;
+  background-color: #8fef8d;
+  font-weight: 700;
+  border-radius: 5px;
+}
