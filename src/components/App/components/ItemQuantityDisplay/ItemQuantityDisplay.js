@@ -1,25 +1,21 @@
-import React, { memo, useState } from "react";
+import React, { memo } from "react";
 import "./ItemQuantityDisplay.css";
 import PropTypes from "prop-types";
 import { checkProduct } from "../../../../api/checkProduct";
 
 const ItemQuantityDisplay = (props) => {
-  const { pid, min, max, isBlocked, updateQuantity } = props;
+  const { pid, min, max, isBlocked, currentQuantity, updateQuantity } = props;
 
-  const [quantity, setQuantity] = useState(min);
+  const isMinusDisabeld = isBlocked || currentQuantity == min;
+  const isPlusDisabled = isBlocked || currentQuantity == max;
 
-  const isMinusDisabeld = isBlocked || quantity == min;
-  const isPlusDisabled = isBlocked || quantity == max;
-
-  const addNumber = (number) => {
-    const newQuantity = quantity + number;
-    setQuantity(newQuantity);
+  const addNumberToQuantity = (number) => {
+    const newQuantity = currentQuantity + number;
+    updateQuantity(pid, newQuantity);
 
     checkProduct(pid, newQuantity).then((res) => {
       if (res.isError) {
-        setQuantity(min);
-      } else {
-        updateQuantity(pid, newQuantity);
+        updateQuantity(pid, min);
       }
     });
   };
@@ -27,20 +23,20 @@ const ItemQuantityDisplay = (props) => {
   return (
     <div className="quantity-display">
       <span className="text">
-        Obecnie masz <strong> {quantity} </strong> sztuk produktu
+        Obecnie masz <strong> {currentQuantity} </strong> sztuk produktu
       </span>
       <div className="buttons-block">
         <button
           className="button-minus"
           disabled={isMinusDisabeld}
-          onClick={() => addNumber(-1)}
+          onClick={() => addNumberToQuantity(-1)}
         >
           -
         </button>
         <button
           className="button-plus"
           disabled={isPlusDisabled}
-          onClick={() => addNumber(1)}
+          onClick={() => addNumberToQuantity(1)}
         >
           +
         </button>
@@ -50,9 +46,12 @@ const ItemQuantityDisplay = (props) => {
 };
 
 ItemQuantityDisplay.propTypes = {
+  pid: PropTypes.string.isRequired,
   min: PropTypes.number,
   max: PropTypes.number,
   isBlocked: PropTypes.bool,
+  currentQuantity: PropTypes.number.isRequired,
+  updateQuantity: PropTypes.func.isRequired,
 };
 
 export default memo(ItemQuantityDisplay);

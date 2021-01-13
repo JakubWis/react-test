@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 import { getProducts } from "../../api/getProducts";
-import { checkProduct } from "../../api/checkProduct";
 import { showStringPrice } from "../../common/functions/showStringPrice";
 import ItemDisplay from "./components/ItemDisplay/ItemDisplay";
 import ItemQuantityDisplay from "./components/ItemQuantityDisplay/ItemQuantityDisplay";
@@ -52,6 +51,7 @@ const App = () => {
                 pid={item.pid}
                 min={item.min}
                 max={item.max}
+                currentQuantity={item.quantity}
                 updateQuantity={updateQuantity}
               />
             </li>
